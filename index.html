@@ -1,0 +1,689 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Codfathers' World Cup Sweepstake 2026</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<script src="https://js.pusher.com/8.2.0/pusher.min.js"></script>
+<style>
+  :root {
+    --bg: #0a0e1a;
+    --surface: #111827;
+    --surface2: #1c2538;
+    --border: #2a3550;
+    --gold: #f5c842;
+    --gold2: #e8a820;
+    --silver: #a8b8d0;
+    --text: #e8edf5;
+    --muted: #6b7a99;
+    --s1: #f5c842;
+    --s2: #4ade80;
+    --s3: #60a5fa;
+    --s4: #fb923c;
+    --s5: #c084fc;
+    --s6: #f472b6;
+    --danger: #e05252;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: var(--bg); color: var(--text); font-family: 'DM Sans', sans-serif; min-height: 100vh; overflow-x: hidden; }
+  body::before { content: ''; position: fixed; inset: 0; background: radial-gradient(ellipse at 20% 10%, rgba(245,200,66,0.07) 0%, transparent 50%), radial-gradient(ellipse at 80% 90%, rgba(96,165,250,0.06) 0%, transparent 50%); pointer-events: none; z-index: 0; }
+  .container { max-width: 980px; margin: 0 auto; padding: 40px 24px 80px; position: relative; z-index: 1; }
+
+  header { text-align: center; margin-bottom: 48px; }
+  .badge { display: inline-block; background: var(--gold); color: #0a0e1a; font-family: 'Bebas Neue', sans-serif; font-size: 11px; letter-spacing: 3px; padding: 4px 14px; border-radius: 2px; margin-bottom: 16px; }
+  h1 { font-family: 'Bebas Neue', sans-serif; font-size: clamp(40px, 9vw, 80px); letter-spacing: 2px; line-height: 0.9; color: var(--text); margin-bottom: 12px; }
+  h1 span { color: var(--gold); }
+  .sponsor { color: var(--gold); font-size: 13px; letter-spacing: 0.5px; margin-bottom: 6px; }
+  .sponsor strong { font-weight: 600; }
+  .draw-time { color: var(--text); font-size: 15px; font-weight: 500; margin-bottom: 8px; }
+  .draw-time strong { color: var(--gold); }
+  .subtitle { color: var(--muted); font-size: 14px; font-weight: 300; }
+  .divider { height: 1px; background: linear-gradient(to right, transparent, var(--border), transparent); margin: 36px 0; }
+  .section-label { font-family: 'Bebas Neue', sans-serif; font-size: 13px; letter-spacing: 4px; color: var(--muted); margin-bottom: 16px; }
+
+  /* Waiting screen */
+  #waitingScreen { text-align: center; padding: 60px 20px; }
+  .waiting-title { font-family: 'Bebas Neue', sans-serif; font-size: 32px; letter-spacing: 2px; color: var(--gold); margin-bottom: 12px; }
+  .waiting-sub { color: var(--muted); font-size: 15px; margin-bottom: 32px; }
+  .pulse { display: inline-block; width: 12px; height: 12px; border-radius: 50%; background: var(--gold); animation: pulse 1.4s ease-in-out infinite; margin: 0 4px; }
+  .pulse:nth-child(2) { animation-delay: 0.2s; }
+  .pulse:nth-child(3) { animation-delay: 0.4s; }
+  @keyframes pulse { 0%,80%,100%{transform:scale(0);opacity:0.3} 40%{transform:scale(1);opacity:1} }
+
+  /* Host panel */
+  #hostPanel { background: var(--surface); border: 1px solid var(--border); border-left: 3px solid var(--gold); border-radius: 8px; padding: 20px; margin-bottom: 24px; }
+  .host-title { font-family: 'Bebas Neue', sans-serif; font-size: 16px; letter-spacing: 2px; color: var(--gold); margin-bottom: 12px; }
+  .host-row { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+  .host-input { background: var(--surface2); border: 1px solid var(--border); color: var(--text); font-family: 'DM Sans', sans-serif; font-size: 14px; padding: 10px 14px; border-radius: 6px; outline: none; flex: 1; min-width: 160px; }
+  .host-input:focus { border-color: var(--gold); }
+  .host-input::placeholder { color: var(--muted); }
+  .btn-host { background: var(--gold); color: #0a0e1a; border: none; font-family: 'Bebas Neue', sans-serif; font-size: 16px; letter-spacing: 2px; padding: 11px 20px; border-radius: 6px; cursor: pointer; transition: background 0.2s; white-space: nowrap; }
+  .btn-host:hover { background: var(--gold2); }
+  .btn-host:disabled { background: var(--border); color: var(--muted); cursor: not-allowed; }
+  .host-err { color: var(--danger); font-size: 12px; margin-top: 8px; min-height: 18px; }
+
+  /* Participants */
+  .participants-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 10px; margin-bottom: 32px; }
+  .participant-input-wrap { position: relative; }
+  .participant-num { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); font-family: 'Bebas Neue', sans-serif; font-size: 16px; color: var(--muted); pointer-events: none; }
+  .participant-input { width: 100%; background: var(--surface); border: 1px solid var(--border); color: var(--text); font-family: 'DM Sans', sans-serif; font-size: 14px; padding: 12px 12px 12px 32px; border-radius: 6px; outline: none; transition: border-color 0.2s; }
+  .participant-input:focus { border-color: var(--gold); }
+  .participant-input::placeholder { color: var(--muted); }
+  .participant-input:disabled { opacity: 0.5; cursor: not-allowed; }
+
+  /* Seeds */
+  .methodology-note { background: var(--surface); border: 1px solid var(--border); border-left: 3px solid var(--gold); border-radius: 6px; padding: 14px 16px; margin-bottom: 20px; font-size: 13px; color: var(--silver); line-height: 1.6; }
+  .methodology-note strong { color: var(--gold); }
+  .seeds-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 12px; margin-bottom: 32px; }
+  @media(max-width:640px){ .seeds-grid { grid-template-columns: repeat(2,1fr); } }
+  .seed-card { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 14px; border-top: 3px solid; }
+  .seed-card.s1{border-top-color:var(--s1)} .seed-card.s2{border-top-color:var(--s2)} .seed-card.s3{border-top-color:var(--s3)}
+  .seed-card.s4{border-top-color:var(--s4)} .seed-card.s5{border-top-color:var(--s5)} .seed-card.s6{border-top-color:var(--s6)}
+  .seed-title { font-family: 'Bebas Neue', sans-serif; font-size: 15px; letter-spacing: 2px; margin-bottom: 1px; }
+  .seed-card.s1 .seed-title{color:var(--s1)} .seed-card.s2 .seed-title{color:var(--s2)} .seed-card.s3 .seed-title{color:var(--s3)}
+  .seed-card.s4 .seed-title{color:var(--s4)} .seed-card.s5 .seed-title{color:var(--s5)} .seed-card.s6 .seed-title{color:var(--s6)}
+  .seed-desc { font-size: 10px; color: var(--muted); margin-bottom: 10px; }
+  .seed-teams { list-style: none; font-size: 11.5px; color: var(--silver); }
+  .seed-teams li { display: flex; align-items: center; gap: 6px; padding: 2px 0; }
+  .flag-sm { width: 20px; height: 13px; object-fit: cover; border-radius: 2px; flex-shrink: 0; border: 1px solid rgba(255,255,255,0.1); }
+
+  /* Draw button */
+  .btn-draw { width: 100%; background: var(--gold); color: #0a0e1a; border: none; font-family: 'Bebas Neue', sans-serif; font-size: 24px; letter-spacing: 3px; padding: 20px; border-radius: 8px; cursor: pointer; transition: background 0.2s; margin-bottom: 12px; }
+  .btn-draw:hover { background: var(--gold2); }
+  .btn-draw:disabled { background: var(--border); color: var(--muted); cursor: not-allowed; }
+  .error-msg { color: var(--danger); font-size: 13px; text-align: center; margin-top: 12px; min-height: 20px; }
+
+  /* Results */
+  #results { display: none; }
+  .results-header { text-align: center; margin-bottom: 28px; }
+  .results-title { font-family: 'Bebas Neue', sans-serif; font-size: 48px; letter-spacing: 2px; color: var(--gold); margin-bottom: 8px; }
+
+  /* Status bar */
+  .draw-status-wrap { min-height: 80px; display: flex; flex-direction: column; align-items: center; justify-content: center; margin-bottom: 10px; }
+  .draw-status { font-family: 'Bebas Neue', sans-serif; font-size: 22px; letter-spacing: 1px; display: flex; align-items: center; justify-content: center; gap: 10px; transition: color 0.3s; }
+  .draw-status.s1{color:var(--s1)} .draw-status.s2{color:var(--s2)} .draw-status.s3{color:var(--s3)}
+  .draw-status.s4{color:var(--s4)} .draw-status.s5{color:var(--s5)} .draw-status.s6{color:var(--s6)}
+  .status-flag { width: 32px; height: 21px; object-fit: cover; border-radius: 2px; border: 1px solid rgba(255,255,255,0.15); display:none; }
+  .status-flag.show { display: inline-block; }
+
+  /* Ellipsis suspense */
+  .ellipsis-wrap { font-family: 'Bebas Neue', sans-serif; font-size: 26px; letter-spacing: 3px; min-height: 36px; display: flex; align-items: center; justify-content: center; gap: 6px; }
+  .ell-dot { display: inline-block; opacity: 0; animation: ellAnim 1.2s ease-in-out infinite; font-size: 32px; }
+  .ell-dot:nth-child(1){animation-delay:0s}
+  .ell-dot:nth-child(2){animation-delay:0.3s}
+  .ell-dot:nth-child(3){animation-delay:0.6s}
+  @keyframes ellAnim { 0%,100%{opacity:0;transform:translateY(0)} 50%{opacity:1;transform:translateY(-4px)} }
+
+  /* Team name slam */
+  @keyframes slam-in {
+    0%   { transform: scale(1.6); opacity: 0; }
+    60%  { transform: scale(0.95); opacity: 1; }
+    80%  { transform: scale(1.05); }
+    100% { transform: scale(1); }
+  }
+  .team-slam { animation: slam-in 0.5s cubic-bezier(0.22,1,0.36,1) forwards; }
+
+  .results-sub { font-size: 13px; color: var(--muted); }
+
+  /* Player cards */
+  .results-grid { display: grid; grid-template-columns: 1fr; gap: 16px; }
+  @media(min-width:640px){ .results-grid { grid-template-columns: repeat(2,1fr); } }
+  .player-card { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 20px; opacity: 0; transform: translateY(16px); transition: opacity 0.35s ease, transform 0.35s ease; }
+  .player-card.visible { opacity: 1; transform: translateY(0); }
+  .player-name { font-family: 'Bebas Neue', sans-serif; font-size: 22px; letter-spacing: 1px; margin-bottom: 14px; color: var(--text); border-bottom: 1px solid var(--border); padding-bottom: 10px; }
+  .team-list { list-style: none; display: flex; flex-direction: column; gap: 7px; }
+  .team-slot { display: flex; align-items: center; gap: 9px; font-size: 13.5px; padding: 2px 0; }
+  @keyframes shake-in {
+    0%   { transform: translateX(-8px) scale(1.05); opacity: 0; }
+    30%  { transform: translateX(6px) scale(1.03); opacity: 1; }
+    55%  { transform: translateX(-4px) scale(1.01); }
+    75%  { transform: translateX(3px); }
+    100% { transform: translateX(0) scale(1); }
+  }
+  .team-slot.just-added { animation: shake-in 0.4s ease forwards; }
+  .seed-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+  .seed-dot.s1{background:var(--s1)} .seed-dot.s2{background:var(--s2)} .seed-dot.s3{background:var(--s3)}
+  .seed-dot.s4{background:var(--s4)} .seed-dot.s5{background:var(--s5)} .seed-dot.s6{background:var(--s6)}
+  .seed-dot.empty{background:var(--border)}
+  .slot-label{font-size:9px;letter-spacing:1px;color:var(--muted);width:40px;flex-shrink:0;font-weight:600}
+  .slot-flag{width:26px;height:17px;object-fit:cover;border-radius:2px;flex-shrink:0;border:1px solid rgba(255,255,255,0.12)}
+  .slot-flag-empty{width:26px;height:17px;background:var(--border);border-radius:2px;flex-shrink:0;opacity:0.3}
+  .team-name{font-weight:500}
+  .team-name.empty{color:var(--border)}
+
+  /* Actions */
+  .actions-row { display: flex; gap: 10px; margin-top: 36px; flex-wrap: wrap; }
+  .btn-secondary { flex: 1; background: var(--surface); border: 1px solid var(--border); color: var(--text); font-family: 'DM Sans', sans-serif; font-size: 13px; font-weight: 500; padding: 12px 16px; border-radius: 6px; cursor: pointer; transition: border-color 0.2s, background 0.2s; min-width: 120px; }
+  .btn-secondary:hover { background: var(--surface2); border-color: var(--silver); }
+
+  #confetti-canvas { position: fixed; top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:999; }
+
+  @media print {
+    body{background:white;color:black}
+    body::before,#confetti-canvas,#hostPanel,.setup-section{display:none!important}
+    #results{display:block!important}
+    .actions-row,.draw-status-wrap{display:none}
+    .player-card{border:1px solid #ccc;break-inside:avoid;opacity:1!important;transform:none!important;background:white}
+    .results-title,.player-name,.team-name{color:#111}
+    .slot-label,.results-sub{color:#666}
+    .divider{display:none}
+  }
+</style>
+</head>
+<body>
+<canvas id="confetti-canvas"></canvas>
+<div class="container">
+
+  <header>
+    <div class="badge">FIFA ⚽ 2026</div>
+    <h1>CODFATHERS'<br>WORLD CUP<br><span>SWEEPSTAKE</span></h1>
+    <p class="sponsor">Proudly sponsored by <strong>Hayes Kebab F.C.</strong></p>
+    <p class="draw-time">⏰ Live draw begins <strong>8PM BST</strong> · Monday 8 June</p>
+    <p class="subtitle">8 players &nbsp;·&nbsp; 6 teams each &nbsp;·&nbsp; 6 seeded pots &nbsp;·&nbsp; 48 teams</p>
+  </header>
+
+  <!-- HOST PANEL (only shown when ?host=1 in URL) -->
+  <div id="hostPanel" style="display:none">
+    <div class="host-title">🎙 HOST CONTROLS</div>
+    <div class="host-row">
+      <input class="host-input" type="password" id="hostPassword" placeholder="Enter host password">
+      <button class="btn-host" id="startDrawBtn">START DRAW</button>
+    </div>
+    <div class="host-err" id="hostErr"></div>
+  </div>
+
+  <!-- WAITING SCREEN (shown to viewers before draw starts) -->
+  <div id="waitingScreen">
+    <div class="waiting-title">⚽ Waiting for the draw to begin...</div>
+    <p class="waiting-sub">The host will start the live draw at 8PM BST</p>
+    <div>
+      <span class="pulse"></span>
+      <span class="pulse"></span>
+      <span class="pulse"></span>
+    </div>
+  </div>
+
+  <!-- SETUP (only visible to host) -->
+  <div class="setup-section" id="setupSection" style="display:none">
+    <div class="section-label">PARTICIPANTS</div>
+    <div class="participants-grid" id="participantsGrid"></div>
+    <div class="divider"></div>
+    <div class="section-label">SEED POTS</div>
+    <div class="methodology-note">
+      <strong>How the seeding works:</strong> All 48 teams are ranked across 6 seeds of 8, based on a blend of historical World Cup pedigree, current FIFA ranking, and genuine tournament threat — not the official FIFA draw pots, which were distorted by host nation privilege. Every player draws one team from each seed, starting from Seed 6 (rank outsiders) building to the Seed 1 elite reveal.
+    </div>
+    <div class="seeds-grid" id="seedsGrid"></div>
+    <button class="btn-draw" id="drawBtn">⚽ GENERATE DRAW</button>
+    <p class="error-msg" id="errorMsg"></p>
+  </div>
+
+  <div class="divider" id="mainDivider" style="display:none"></div>
+
+  <!-- RESULTS -->
+  <div id="results">
+    <div class="results-header">
+      <div class="results-title">THE DRAW</div>
+      <div class="draw-status-wrap">
+        <div class="draw-status" id="drawStatus">
+          <img class="status-flag" id="statusFlag" src="" alt="">
+          <span id="statusText"></span>
+        </div>
+        <div class="ellipsis-wrap" id="ellipsisWrap" style="display:none">
+          <span class="ell-dot">·</span>
+          <span class="ell-dot">·</span>
+          <span class="ell-dot">·</span>
+        </div>
+      </div>
+      <p class="results-sub" id="drawTimestamp"></p>
+    </div>
+    <div class="results-grid" id="resultsGrid"></div>
+    <div class="actions-row" id="actionsRow" style="display:none">
+      <button class="btn-secondary" onclick="window.print()">🖨 Print results</button>
+      <button class="btn-secondary" id="copyBtn">📋 Copy to clipboard</button>
+      <button class="btn-secondary" id="permLinkBtn">🔗 Copy permanent link</button>
+    </div>
+  </div>
+
+</div>
+
+<script>
+// ─── CONFIG ───────────────────────────────────────────────────────────────────
+const PUSHER_KEY = '996446c9642fa81fa0a2';
+const PUSHER_CLUSTER = 'eu';
+
+const FLAG = 'https://flagcdn.com/w40/';
+function furl(code){ return FLAG+code+'.png'; }
+function fimg(code,cls){ return `<img class="${cls}" src="${furl(code)}" alt="" loading="lazy" onerror="this.style.visibility='hidden'">`; }
+
+// ─── SEEDS DATA ───────────────────────────────────────────────────────────────
+const SEEDS = [
+  { id:1, cls:'s1', label:'SEED 1', desc:'Elite contenders', teams:[
+    {name:'France',code:'fr'},{name:'Spain',code:'es'},{name:'Argentina',code:'ar'},
+    {name:'England',code:'gb-eng'},{name:'Brazil',code:'br'},{name:'Germany',code:'de'},
+    {name:'Portugal',code:'pt'},{name:'Netherlands',code:'nl'},
+  ]},
+  { id:2, cls:'s2', label:'SEED 2', desc:'Strong favourites', teams:[
+    {name:'Belgium',code:'be'},{name:'Croatia',code:'hr'},{name:'Uruguay',code:'uy'},
+    {name:'Colombia',code:'co'},{name:'USA',code:'us'},{name:'Mexico',code:'mx'},
+    {name:'Morocco',code:'ma'},{name:'Senegal',code:'sn'},
+  ]},
+  { id:3, cls:'s3', label:'SEED 3', desc:'Competitive — could upset anyone', teams:[
+    {name:'Japan',code:'jp'},{name:'Switzerland',code:'ch'},{name:'South Korea',code:'kr'},
+    {name:'Austria',code:'at'},{name:'Norway',code:'no'},{name:'Turkey',code:'tr'},
+    {name:'Sweden',code:'se'},{name:'Iran',code:'ir'},
+  ]},
+  { id:4, cls:'s4', label:'SEED 4', desc:'Decent — unlikely to go deep', teams:[
+    {name:'Australia',code:'au'},{name:"Côte d'Ivoire",code:'ci'},{name:'Canada',code:'ca'},
+    {name:'Ghana',code:'gh'},{name:'Algeria',code:'dz'},{name:'Scotland',code:'gb-sct'},
+    {name:'Tunisia',code:'tn'},{name:'Paraguay',code:'py'},
+  ]},
+  { id:5, cls:'s5', label:'SEED 5', desc:'Outsiders', teams:[
+    {name:'South Africa',code:'za'},{name:'Egypt',code:'eg'},{name:'Panama',code:'pa'},
+    {name:'Qatar',code:'qa'},{name:'Saudi Arabia',code:'sa'},{name:'Czechia',code:'cz'},
+    {name:'Bosnia & Herz.',code:'ba'},{name:'Ecuador',code:'ec'},
+  ]},
+  { id:6, cls:'s6', label:'SEED 6', desc:'Rank outsiders', teams:[
+    {name:'New Zealand',code:'nz'},{name:'Cabo Verde',code:'cv'},{name:'Curaçao',code:'cw'},
+    {name:'Haiti',code:'ht'},{name:'Jordan',code:'jo'},{name:'Uzbekistan',code:'uz'},
+    {name:'DR Congo',code:'cd'},{name:'Iraq',code:'iq'},
+  ]},
+];
+
+const DEFAULT_NAMES = ['Ben','Fat Bear','Fat Curt','Frazer','Funk','Newham','Peebs','Rick'];
+
+// Timing: seeds 6-3 = 5s apart, seeds 2-1 = suspense mode
+const SEED_DELAY = { 6:5000, 5:5000, 4:5000, 3:5000, 2:null, 1:null }; // null = suspense mode
+const SUSPENSE_ANNOUNCE = 4000; // ms showing "X draws..." before ellipsis
+const SUSPENSE_ELLIPSIS = 9000; // ms of ellipsis dots
+const SUSPENSE_REVEAL   = 800;  // ms after reveal before next pick
+
+function shuffle(arr){
+  const a=[...arr];
+  for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}
+  return a;
+}
+function esc(s){ return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+function getNames(){
+  return Array.from({length:8},(_,i)=>{
+    const v=document.getElementById(`p${i+1}`).value.trim();
+    return v||`Player ${i+1}`;
+  });
+}
+
+// ─── HOST / VIEWER MODE ───────────────────────────────────────────────────────
+const isHost = window.location.search.includes('host=1');
+let pusher, channel;
+
+function initPusher(){
+  pusher = new Pusher(PUSHER_KEY, { cluster: PUSHER_CLUSTER });
+  channel = pusher.subscribe('sweepstake');
+
+  channel.bind('draw-start', function(data){
+    showResultsArea(data.players, data.playerOrder, data.timestamp);
+  });
+
+  channel.bind('pick', function(data){
+    receivePick(data);
+  });
+
+  channel.bind('draw-complete', function(){
+    finishDraw();
+  });
+}
+
+// ─── PAGE SETUP ───────────────────────────────────────────────────────────────
+window.addEventListener('DOMContentLoaded', function(){
+  initPusher();
+  buildSeeds();
+
+  if(isHost){
+    document.getElementById('hostPanel').style.display = 'block';
+    document.getElementById('setupSection').style.display = 'block';
+    document.getElementById('mainDivider').style.display = 'block';
+    document.getElementById('waitingScreen').style.display = 'none';
+    buildParticipants();
+  }
+
+  // Check URL for permanent results
+  const params = new URLSearchParams(window.location.search);
+  if(params.get('draw')){
+    loadPermanentDraw(params.get('draw'));
+  }
+});
+
+function buildParticipants(){
+  const grid=document.getElementById('participantsGrid');
+  grid.innerHTML='';
+  for(let i=0;i<8;i++){
+    const w=document.createElement('div');
+    w.className='participant-input-wrap';
+    w.innerHTML=`<span class="participant-num">${i+1}</span><input class="participant-input" type="text" value="${DEFAULT_NAMES[i]}" maxlength="24" id="p${i+1}">`;
+    grid.appendChild(w);
+  }
+}
+
+function buildSeeds(){
+  const grid=document.getElementById('seedsGrid');
+  grid.innerHTML='';
+  SEEDS.forEach(seed=>{
+    const card=document.createElement('div');
+    card.className=`seed-card ${seed.cls}`;
+    const rows=seed.teams.map(t=>`<li>${fimg(t.code,'flag-sm')}<span>${t.name}</span></li>`).join('');
+    card.innerHTML=`<div class="seed-title">${seed.label}</div><div class="seed-desc">${seed.desc}</div><ul class="seed-teams">${rows}</ul>`;
+    grid.appendChild(card);
+  });
+}
+
+// ─── HOST: START DRAW ─────────────────────────────────────────────────────────
+document.getElementById('startDrawBtn') && document.getElementById('startDrawBtn').addEventListener('click', async function(){
+  const pw = document.getElementById('hostPassword').value;
+  const err = document.getElementById('hostErr');
+  if(!pw){ err.textContent='Enter the host password first.'; return; }
+  err.textContent='';
+  this.disabled = true;
+  this.textContent = 'STARTING...';
+
+  // Build the full draw
+  const names = getNames();
+  if(new Set(names.map(n=>n.toLowerCase())).size < 8){
+    document.getElementById('errorMsg').textContent='Each player needs a unique name.';
+    this.disabled=false; this.textContent='START DRAW'; return;
+  }
+
+  const shuffled = SEEDS.map(s=>({...s, teams:shuffle(s.teams)}));
+  const players = names.map((name,i)=>({
+    name,
+    slots:[
+      {...shuffled[5].teams[i], seedCls:'s6', seedLabel:'SEED 6', seedId:6},
+      {...shuffled[4].teams[i], seedCls:'s5', seedLabel:'SEED 5', seedId:5},
+      {...shuffled[3].teams[i], seedCls:'s4', seedLabel:'SEED 4', seedId:4},
+      {...shuffled[2].teams[i], seedCls:'s3', seedLabel:'SEED 3', seedId:3},
+      {...shuffled[1].teams[i], seedCls:'s2', seedLabel:'SEED 2', seedId:2},
+      {...shuffled[0].teams[i], seedCls:'s1', seedLabel:'SEED 1', seedId:1},
+    ]
+  }));
+
+  const playerOrder = shuffle([...Array(8).keys()]);
+  const timestamp = new Date().toLocaleDateString('en-GB',{weekday:'long',day:'numeric',month:'long',year:'numeric'}) +
+    ' at ' + new Date().toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'});
+
+  // Broadcast draw-start to all clients
+  await broadcast('draw-start', { players, playerOrder, timestamp }, pw);
+  this.textContent = 'DRAW RUNNING';
+});
+
+// Host drives the pick sequence
+let _players, _playerOrder, _drawPw;
+let _pickIdx = 0;
+let _isHostDriving = false;
+
+async function broadcast(action, data, pw){
+  try {
+    const res = await fetch('/.netlify/functions/draw', {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ action, data, password: pw || _drawPw })
+    });
+    const json = await res.json();
+    if(json.error){ document.getElementById('hostErr').textContent = json.error; }
+  } catch(e){
+    document.getElementById('hostErr').textContent = 'Connection error: ' + e.message;
+  }
+}
+
+// ─── SHOW RESULTS AREA (called on all clients via Pusher) ─────────────────────
+function showResultsArea(players, playerOrder, timestamp){
+  document.getElementById('waitingScreen').style.display = 'none';
+  document.getElementById('mainDivider').style.display = 'block';
+  document.getElementById('results').style.display = 'block';
+  document.getElementById('drawTimestamp').textContent = 'Drawn on ' + timestamp;
+
+  const grid = document.getElementById('resultsGrid');
+  grid.innerHTML = '';
+
+  playerOrder.forEach(pi=>{
+    const player = players[pi];
+    const card = document.createElement('div');
+    card.className = 'player-card';
+    card.id = `card-${pi}`;
+    card.innerHTML = `
+      <div class="player-name">${esc(player.name)}</div>
+      <ul class="team-list">
+        ${player.slots.map((_,si)=>`
+          <li class="team-slot" id="slot-${pi}-${si}">
+            <span class="seed-dot empty"></span>
+            <span class="slot-label"></span>
+            <span class="slot-flag-empty"></span>
+            <span class="team-name empty">—</span>
+          </li>`).join('')}
+      </ul>`;
+    grid.appendChild(card);
+  });
+
+  playerOrder.forEach((pi,i)=>setTimeout(()=>document.getElementById(`card-${pi}`).classList.add('visible'),60*i));
+  setTimeout(()=>document.getElementById('results').scrollIntoView({behavior:'smooth',block:'start'}),200);
+
+  // If host, start driving picks
+  if(isHost){
+    _players = players;
+    _playerOrder = playerOrder;
+    _drawPw = document.getElementById('hostPassword').value;
+    _pickIdx = 0;
+    _isHostDriving = true;
+    setTimeout(driveNextPick, 1500);
+  }
+}
+
+// ─── HOST DRIVES PICK SEQUENCE ────────────────────────────────────────────────
+async function driveNextPick(){
+  if(!_isHostDriving) return;
+  const totalPicks = 48; // 6 rounds × 8 players
+  if(_pickIdx >= totalPicks){
+    await broadcast('draw-complete', {}, _drawPw);
+    return;
+  }
+
+  const slot = Math.floor(_pickIdx / 8);   // 0-5
+  const pInRound = _pickIdx % 8;
+  const pi = _playerOrder[pInRound];
+  const player = _players[pi];
+  const team = player.slots[slot];
+  const seedId = team.seedId;
+
+  // Broadcast this pick to all clients
+  await broadcast('pick', { pi, slot, team }, _drawPw);
+
+  _pickIdx++;
+
+  // Schedule next pick based on seed
+  if(seedId >= 3){
+    setTimeout(driveNextPick, SEED_DELAY[seedId]);
+  } else {
+    // Suspense seeds: wait long enough for the full suspense sequence to play out
+    const totalWait = SUSPENSE_ANNOUNCE + SUSPENSE_ELLIPSIS + SUSPENSE_REVEAL + 800;
+    setTimeout(driveNextPick, totalWait);
+  }
+}
+
+// ─── ALL CLIENTS: RECEIVE A PICK ─────────────────────────────────────────────
+function receivePick(data){
+  const { pi, slot, team } = data;
+  const seedId = team.seedId;
+  const slotEl = document.getElementById(`slot-${pi}-${slot}`);
+  const statusEl = document.getElementById('drawStatus');
+  const statusFlag = document.getElementById('statusFlag');
+  const statusText = document.getElementById('statusText');
+  const ellWrap = document.getElementById('ellipsisWrap');
+
+  if(seedId <= 2){
+    // SUSPENSE MODE
+    // Step 1: "Player draws..."
+    statusEl.className = `draw-status ${team.seedCls}`;
+    statusFlag.classList.remove('show');
+    ellWrap.style.display = 'none';
+    statusText.textContent = `${team.seedLabel} — ${team.seedLabel === 'SEED 1' ? '🏆 ' : ''}${_players ? _players[pi].name : getPlayerNameFromCard(pi)} draws...`;
+
+    // Step 2: show ellipsis
+    setTimeout(()=>{
+      ellWrap.style.display = 'flex';
+    }, SUSPENSE_ANNOUNCE);
+
+    // Step 3: reveal team
+    setTimeout(()=>{
+      ellWrap.style.display = 'none';
+      statusFlag.src = furl(team.code);
+      statusFlag.classList.add('show');
+      statusText.innerHTML = `<span class="team-slam">${team.name.toUpperCase()}!</span>`;
+      revealSlot(slotEl, team);
+    }, SUSPENSE_ANNOUNCE + SUSPENSE_ELLIPSIS);
+
+  } else {
+    // NORMAL SPEED
+    statusEl.className = `draw-status ${team.seedCls}`;
+    ellWrap.style.display = 'none';
+    statusFlag.src = furl(team.code);
+    statusFlag.classList.add('show');
+    statusText.textContent = `${team.seedLabel} — ${getPlayerNameFromCard(pi)} draws ${team.name}`;
+    revealSlot(slotEl, team);
+  }
+}
+
+function getPlayerNameFromCard(pi){
+  const card = document.getElementById(`card-${pi}`);
+  return card ? card.querySelector('.player-name').textContent : '';
+}
+
+function revealSlot(slotEl, team){
+  if(!slotEl) return;
+  slotEl.innerHTML = `
+    <span class="seed-dot ${team.seedCls}"></span>
+    <span class="slot-label">${team.seedLabel}</span>
+    ${fimg(team.code,'slot-flag')}
+    <span class="team-name">${team.name}</span>`;
+  slotEl.classList.add('just-added');
+  setTimeout(()=>slotEl.classList.remove('just-added'), 450);
+}
+
+// ─── DRAW COMPLETE ────────────────────────────────────────────────────────────
+function finishDraw(){
+  const statusEl = document.getElementById('drawStatus');
+  const statusFlag = document.getElementById('statusFlag');
+  const statusText = document.getElementById('statusText');
+  const ellWrap = document.getElementById('ellipsisWrap');
+
+  setTimeout(()=>{
+    ellWrap.style.display = 'none';
+    statusEl.className = 'draw-status s1';
+    statusFlag.classList.remove('show');
+    statusText.textContent = '🏆 DRAW COMPLETE';
+    document.getElementById('actionsRow').style.display = 'flex';
+    launchConfetti();
+  }, SUSPENSE_ANNOUNCE + SUSPENSE_ELLIPSIS + 600);
+}
+
+// ─── PERMANENT LINK ───────────────────────────────────────────────────────────
+document.getElementById('permLinkBtn') && document.getElementById('permLinkBtn').addEventListener('click', function(){
+  const cards = [...document.querySelectorAll('.player-card')];
+  const encoded = cards.map(card=>{
+    const name = encodeURIComponent(card.querySelector('.player-name').textContent);
+    const teams = [...card.querySelectorAll('.team-slot')].map(sl=>{
+      return encodeURIComponent(sl.querySelector('.team-name').textContent);
+    }).join(',');
+    return name + ':' + teams;
+  }).join('|');
+
+  const url = window.location.origin + window.location.pathname + '?draw=' + encoded;
+  navigator.clipboard.writeText(url).then(()=>{
+    this.textContent = '✓ Link copied!';
+    setTimeout(()=>this.textContent='🔗 Copy permanent link', 2500);
+  });
+});
+
+function loadPermanentDraw(encoded){
+  document.getElementById('waitingScreen').style.display = 'none';
+  document.getElementById('mainDivider').style.display = 'block';
+  document.getElementById('results').style.display = 'block';
+  document.getElementById('drawTimestamp').textContent = 'Official Codfathers\' World Cup Sweepstake 2026 draw';
+
+  const grid = document.getElementById('resultsGrid');
+  grid.innerHTML = '';
+
+  const players = encoded.split('|').map(p=>{
+    const [name, teamsStr] = p.split(':');
+    const teams = teamsStr.split(',').map(t=>decodeURIComponent(t));
+    return { name: decodeURIComponent(name), teams };
+  });
+
+  players.forEach((player, i)=>{
+    const card = document.createElement('div');
+    card.className = 'player-card visible';
+    const seedLabels = ['SEED 6','SEED 5','SEED 4','SEED 3','SEED 2','SEED 1'];
+    const seedCls = ['s6','s5','s4','s3','s2','s1'];
+    const teamRows = player.teams.map((t,si)=>{
+      // Find team code
+      const found = SEEDS.flatMap(s=>s.teams).find(x=>x.name===t);
+      const code = found ? found.code : null;
+      return `<li class="team-slot">
+        <span class="seed-dot ${seedCls[si]}"></span>
+        <span class="slot-label">${seedLabels[si]}</span>
+        ${code ? fimg(code,'slot-flag') : '<span class="slot-flag-empty"></span>'}
+        <span class="team-name">${esc(t)}</span>
+      </li>`;
+    }).join('');
+    card.innerHTML=`<div class="player-name">${esc(player.name)}</div><ul class="team-list">${teamRows}</ul>`;
+    grid.appendChild(card);
+  });
+
+  document.getElementById('actionsRow').style.display = 'flex';
+  document.getElementById('statusText').textContent = '🏆 DRAW COMPLETE';
+}
+
+// ─── COPY RESULTS ─────────────────────────────────────────────────────────────
+document.getElementById('copyBtn').addEventListener('click', function(){
+  const cards=[...document.querySelectorAll('.player-card')];
+  let text='⚽ CODFATHERS\' WORLD CUP 2026 SWEEPSTAKE\n'+'═'.repeat(42)+'\n\n';
+  cards.forEach(card=>{
+    const name=card.querySelector('.player-name').textContent;
+    const slots=[...card.querySelectorAll('.team-slot')].map(sl=>{
+      const label=sl.querySelector('.slot-label').textContent;
+      const team=sl.querySelector('.team-name').textContent;
+      return `  ${label}: ${team}`;
+    }).filter(s=>!s.includes('—'));
+    text+=`${name}\n${slots.join('\n')}\n\n`;
+  });
+  navigator.clipboard.writeText(text).then(()=>{
+    this.textContent='✓ Copied!';
+    setTimeout(()=>this.textContent='📋 Copy to clipboard',2000);
+  });
+});
+
+// ─── CONFETTI ─────────────────────────────────────────────────────────────────
+function launchConfetti(){
+  const canvas=document.getElementById('confetti-canvas');
+  const ctx=canvas.getContext('2d');
+  canvas.width=window.innerWidth; canvas.height=window.innerHeight;
+  const colors=['#f5c842','#4ade80','#60a5fa','#fb923c','#c084fc','#f472b6','#fff'];
+  const particles=Array.from({length:150},()=>({
+    x:Math.random()*canvas.width,y:-20,r:Math.random()*6+3,d:Math.random()*4+2,
+    color:colors[Math.floor(Math.random()*colors.length)],
+    tiltAngle:0,tiltSpeed:Math.random()*0.07+0.05,shape:Math.random()>0.5?'rect':'circle'
+  }));
+  let frame=0;
+  function draw(){
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+    particles.forEach(p=>{
+      p.tiltAngle+=p.tiltSpeed;p.y+=p.d;p.x+=Math.sin(p.tiltAngle)*1.5;
+      ctx.fillStyle=p.color;
+      if(p.shape==='circle'){ctx.beginPath();ctx.arc(p.x,p.y,p.r,0,Math.PI*2);ctx.fill();}
+      else{ctx.save();ctx.translate(p.x,p.y);ctx.rotate(Math.sin(p.tiltAngle)*0.2);ctx.fillRect(-p.r,-p.r/2,p.r*2,p.r);ctx.restore();}
+    });
+    frame++;
+    if(frame<160)requestAnimationFrame(draw);
+    else ctx.clearRect(0,0,canvas.width,canvas.height);
+  }
+  draw();
+}
+</script>
+</body>
+</html>
