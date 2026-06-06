@@ -621,6 +621,10 @@ function receivePick(type, data){
     statusFlag.classList.remove('show');
     ellWrap.style.display='none';
     statusText.textContent=`${player.seedLabel} — ${pname} draws...`;
+    // Show spinner in slot
+    if(slotEl){
+      slotEl.innerHTML=`<span class="seed-dot empty"></span><span class="slot-label"></span><span class="slot-flag-empty"></span><div class="slot-pending"><span class="slot-pending-dot"></span><span class="slot-pending-dot"></span><span class="slot-pending-dot"></span></div>`;
+    }
     setTimeout(()=>{ ellWrap.style.display='flex'; }, SUSPENSE_ANNOUNCE);
     setTimeout(()=>{
       ellWrap.style.display='none';
@@ -635,7 +639,11 @@ function receivePick(type, data){
     statusFlag.src=furl(player.code);
     statusFlag.classList.add('show');
     statusText.textContent=`${player.seedLabel} — ${pname} draws ${teamDisplay}`;
-    revealSlot(type,slotEl,player);
+    // Show spinner in slot first, then reveal after 2s
+    if(slotEl){
+      slotEl.innerHTML=`<span class="seed-dot empty"></span><span class="slot-label"></span><span class="slot-flag-empty"></span><div class="slot-pending"><span class="slot-pending-dot"></span><span class="slot-pending-dot"></span><span class="slot-pending-dot"></span></div>`;
+    }
+    setTimeout(()=>revealSlot(type,slotEl,player), 2000);
   }
 }
 
