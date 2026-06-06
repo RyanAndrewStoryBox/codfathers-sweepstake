@@ -304,6 +304,8 @@
 <script>
 const PUSHER_KEY = '996446c9642fa81fa0a2';
 const PUSHER_CLUSTER = 'eu';
+const SUPABASE_URL = 'https://kqlvalvbjkriwhjbyakj.supabase.co';
+const SUPABASE_ANON_KEY = 'sb_publishable_yW0YXWRbuzVFcWhGXiqXjA_f0dIb_G0';
 const FLAG = 'https://flagcdn.com/w40/';
 function furl(c){ return FLAG+c+'.png'; }
 function fimg(c,cls){ return `<img class="${cls}" src="${furl(c)}" alt="" onerror="this.style.display='none'">`; }
@@ -419,6 +421,74 @@ function shuffle(arr){
   const a=[...arr];
   for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}
   return a;
+}
+
+// ── SUPABASE LOAD ON OPEN ────────────────────────────────────────────────────
+async function checkSavedDraws() {
+  try {
+    const res = await fetch(`${SUPABASE_URL}/rest/v1/draws?select=id,data`, {
+      headers: {
+        'apikey': SUPABASE_ANON_KEY,
+        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
+      }
+    });
+    if (!res.ok) return;
+    const rows = await res.json();
+    if (!rows || rows.length === 0) return;
+
+    // Hide preview screen, show results
+    document.getElementById('previewScreen').style.display = 'none';
+    document.getElementById('mainDivider').style.display = 'block';
+
+    rows.forEach(row => {
+      const type = row.id; // 'sw' or 'gb'
+      const d = row.data;
+      const players = d.players;
+      const playerOrder = d.playerOrder;
+      const timestamp = d.timestamp;
+
+      if (type === 'sw') {
+        _swPlayers = players; _swOrder = playerOrder;
+        document.getElementById('sweepstakeResults').style.display = 'block';
+        document.getElementById('swDrawTimestamp').textContent = 'Drawn on ' + timestamp;
+        document.getElementById('swStatusText').textContent = '🏆 SWEEPSTAKE DRAW COMPLETE';
+        document.getElementById('swActionsRow').style.display = 'flex';
+        buildCompletedCards('sw', players, playerOrder);
+      } else if (type === 'gb') {
+        _gbPlayers = players; _gbOrder = playerOrder;
+        document.getElementById('gbDivider').style.display = 'block';
+        document.getElementById('gbResults').style.display = 'block';
+        document.getElementById('gbDrawTimestamp').textContent = 'Drawn on ' + timestamp;
+        document.getElementById('gbStatusText').textContent = '🥅 GOLDEN BOOT DRAW COMPLETE';
+        document.getElementById('gbActionsRow').style.display = 'flex';
+        buildCompletedCards('gb', players, playerOrder);
+      }
+    });
+  } catch(e) {
+    console.log('Supabase check failed:', e.message);
+  }
+}
+
+function buildCompletedCards(type, players, playerOrder) {
+  const grid = document.getElementById(type === 'sw' ? 'swResultsGrid' : 'gbResultsGrid');
+  grid.innerHTML = '';
+  playerOrder.forEach(pi => {
+    const player = players[pi];
+    const card = document.createElement('div');
+    card.className = 'player-card visible';
+    card.id = `${type}card-${pi}`;
+    const rows = player.slots.map(slot => {
+      const extra = slot.odds ? ` <span class="gb-slot-meta">(${slot.country||''}) ${slot.odds}</span>` : '';
+      return `<li class="team-slot">
+        <span class="seed-dot ${slot.seedCls}"></span>
+        <span class="slot-label">${slot.seedLabel}</span>
+        ${fimg(slot.code, 'slot-flag')}
+        <span class="team-name">${slot.name}${extra}</span>
+      </li>`;
+    }).join('');
+    card.innerHTML = `<div class="player-name">${esc(player.name)}</div><ul class="team-list">${rows}</ul>`;
+    grid.appendChild(card);
+  });
 }
 
 // ── PUSHER ────────────────────────────────────────────────────────────────────
@@ -675,6 +745,9 @@ function launchConfetti(){
 // ── INIT ──────────────────────────────────────────────────────────────────────
 window.addEventListener('DOMContentLoaded',function(){
   initPusher();
+  // Check Supabase for saved draws (skip if permanent link in URL)
+  const _params=new URLSearchParams(window.location.search);
+  if(!_params.get('draw') && !_params.get('gb') && !isHost) checkSavedDraws();
   buildSeedsGrid('seedsGridPreview', SEEDS, false);
   buildSeedsGrid('gbTiersGridPreview', GB_TIERS, true);
   buildParticipantsDisplay();
