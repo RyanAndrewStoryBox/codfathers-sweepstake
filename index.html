@@ -589,7 +589,9 @@ function buildResultCards(type, players, playerOrder){
 async function drivePickSequence(type, players, playerOrder, startIdx){
   const total=48;
   if(startIdx>=total){
-    await broadcast(`${type}-done`,{});
+    // Wait for last pick's full animation to complete before signalling done
+    // Last picks are seed 1 (suspense), so wait full suspense duration + buffer
+    setTimeout(async()=>{ await broadcast(`${type}-done`,{}); }, SUSPENSE_ANNOUNCE+SUSPENSE_ELLIPSIS+2000);
     return;
   }
   const slot=Math.floor(startIdx/8);
@@ -643,7 +645,7 @@ function receivePick(type, data){
     if(slotEl){
       slotEl.innerHTML=`<span class="seed-dot empty"></span><span class="slot-label"></span><span class="slot-flag-empty"></span><div class="slot-pending"><span class="slot-pending-dot"></span><span class="slot-pending-dot"></span><span class="slot-pending-dot"></span></div>`;
     }
-    setTimeout(()=>revealSlot(type,slotEl,player), 2000);
+    setTimeout(()=>revealSlot(type,slotEl,player), 3500);
   }
 }
 
@@ -670,8 +672,7 @@ function finishDraw(type){
   const ellWrap=document.getElementById(`${type==='sw'?'sw':'gb'}EllipsisWrap`);
   const actionsId=type==='sw'?'swActionsRow':'gbActionsRow';
   const msg=type==='sw'?'🏆 SWEEPSTAKE DRAW COMPLETE':'🥅 GOLDEN BOOT DRAW COMPLETE';
-  // Wait long enough for the last suspense pick to fully resolve before firing
-  const wait = (type==='sw') ? SUSPENSE_ANNOUNCE+SUSPENSE_ELLIPSIS+1000 : SUSPENSE_ANNOUNCE+SUSPENSE_ELLIPSIS+1000;
+  // Done signal already arrives after animations complete, just short pause
   setTimeout(()=>{
     ellWrap.style.display='none';
     statusEl.className='draw-status s1';
@@ -679,7 +680,7 @@ function finishDraw(type){
     statusText.textContent=msg;
     document.getElementById(actionsId).style.display='flex';
     launchConfetti();
-  }, wait);
+  }, 1000);
 }
 
 // ─── PERMANENT LINKS ──────────────────────────────────────────────────────────
