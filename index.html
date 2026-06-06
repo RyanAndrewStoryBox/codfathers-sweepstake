@@ -195,6 +195,7 @@
       <input class="host-input" type="password" id="hostPassword" placeholder="Enter host password">
       <button class="btn-host" id="startSweepstakeBtn">▶ START SWEEPSTAKE DRAW</button>
       <button class="btn-host secondary" id="startGoldenBootBtn">🥅 START GOLDEN BOOT DRAW</button>
+      <button class="btn-host secondary" id="resetDrawBtn" style="border-color:var(--danger);color:var(--danger)">🗑 RESET DRAW</button>
     </div>
     <div class="host-err" id="hostErr"></div>
   </div>
@@ -802,6 +803,25 @@ window.addEventListener('DOMContentLoaded',function(){
   }
   document.getElementById('swCopyBtn')&&document.getElementById('swCopyBtn').addEventListener('click',function(){copyResults('swcard-',"⚽ CODFATHERS' WORLD CUP 2026 SWEEPSTAKE");this.textContent='✓ Copied!';setTimeout(()=>this.textContent='📋 Copy results',2000);});
   document.getElementById('gbCopyBtn')&&document.getElementById('gbCopyBtn').addEventListener('click',function(){copyResults('gbcard-',"🥅 CODFATHERS' GOLDEN BOOT DRAW 2026");this.textContent='✓ Copied!';setTimeout(()=>this.textContent='📋 Copy results',2000);});
+
+  document.getElementById('resetDrawBtn')&&document.getElementById('resetDrawBtn').addEventListener('click',async function(){
+    if(!confirm('This will delete the saved draw from the database and reset the page for everyone. Are you sure?')) return;
+    this.disabled=true;this.textContent='RESETTING...';
+    const pw=document.getElementById('hostPassword').value;
+    try{
+      const res=await fetch('/.netlify/functions/draw',{
+        method:'POST',headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({action:'reset',data:{},password:pw})
+      });
+      const json=await res.json();
+      if(json.error){ document.getElementById('hostErr').textContent=json.error; this.disabled=false; this.textContent='🗑 RESET DRAW'; return; }
+      // Broadcast reset to all connected clients
+      window.location.reload();
+    } catch(e){
+      document.getElementById('hostErr').textContent='Reset failed: '+e.message;
+      this.disabled=false;this.textContent='🗑 RESET DRAW';
+    }
+  });
 });
 </script>
 </body>
