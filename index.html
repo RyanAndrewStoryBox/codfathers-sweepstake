@@ -616,52 +616,44 @@ function receivePick(type, data){
   const seedId=player.seedId;
   const teamDisplay = player.country ? `${player.name} (${player.country})` : player.name;
 
+  // Step 1: show pulse dots in the slot immediately
+  if(slotEl){
+    slotEl.innerHTML=`<span class="seed-dot empty"></span><span class="slot-label"></span><span class="slot-flag-empty"></span><div class="slot-pending"><span class="slot-pending-dot"></span><span class="slot-pending-dot"></span><span class="slot-pending-dot"></span></div>`;
+  }
+
   if(seedId<=2){
+    // Suspense path: pulse already showing, then status bar drama, then reveal
     statusEl.className=`draw-status ${player.seedCls}`;
     statusFlag.classList.remove('show');
     ellWrap.style.display='none';
     statusText.textContent=`${player.seedLabel} — ${pname} draws...`;
-    setTimeout(()=>{ ellWrap.style.display='flex'; },SUSPENSE_ANNOUNCE);
+    setTimeout(()=>{ ellWrap.style.display='flex'; }, SUSPENSE_ANNOUNCE);
     setTimeout(()=>{
       ellWrap.style.display='none';
       statusFlag.src=furl(player.code);
       statusFlag.classList.add('show');
       statusText.innerHTML=`<span class="team-slam">${player.name.toUpperCase()}!</span>`;
       revealSlot(type,slotEl,player);
-    },SUSPENSE_ANNOUNCE+SUSPENSE_ELLIPSIS);
+    }, SUSPENSE_ANNOUNCE+SUSPENSE_ELLIPSIS);
   } else {
+    // Normal path: pulse shows for ~1.5s then team reveals
     statusEl.className=`draw-status ${player.seedCls}`;
     ellWrap.style.display='none';
     statusFlag.src=furl(player.code);
     statusFlag.classList.add('show');
     statusText.textContent=`${player.seedLabel} — ${pname} draws ${teamDisplay}`;
-    revealSlot(type,slotEl,player);
+    setTimeout(()=>revealSlot(type,slotEl,player), 1500);
   }
 }
 
 function revealSlot(type,slotEl,player){
   if(!slotEl)return;
-  // Clear any pending pulse on this slot
-  slotEl.classList.remove('slot-is-pending');
   const extra = player.odds ? ` <span class="gb-slot-meta">(${player.country||''}) ${player.odds}</span>` : '';
   slotEl.innerHTML=`<span class="seed-dot ${player.seedCls}"></span><span class="slot-label">${player.seedLabel}</span>${fimg(player.code,'slot-flag')}<span class="team-name">${player.name}${extra}</span>`;
   slotEl.classList.add('just-added');
   setTimeout(()=>slotEl.classList.remove('just-added'),450);
 }
 
-function markSlotPending(type, pi, slot){
-  const slotEl = document.getElementById(`${type}slot-${pi}-${slot}`);
-  if(!slotEl) return;
-  slotEl.innerHTML=`<span class="seed-dot empty"></span><span class="slot-label"></span><span class="slot-flag-empty"></span><div class="slot-pending"><span class="slot-pending-dot"></span><span class="slot-pending-dot"></span><span class="slot-pending-dot"></span></div>`;
-}
-
-function clearAllPending(type){
-  document.querySelectorAll(`[id^="${type}slot-"]`).forEach(el=>{
-    if(el.querySelector('.slot-pending')){
-      el.innerHTML=`<span class="seed-dot empty"></span><span class="slot-label"></span><span class="slot-flag-empty"></span><span class="team-name empty">—</span>`;
-    }
-  });
-}
 
 // ─── FINISH DRAW ──────────────────────────────────────────────────────────────
 function finishDraw(type){
