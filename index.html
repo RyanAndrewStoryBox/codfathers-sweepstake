@@ -616,13 +616,7 @@ function receivePick(type, data){
   const seedId=player.seedId;
   const teamDisplay = player.country ? `${player.name} (${player.country})` : player.name;
 
-  // Step 1: show pulse dots in the slot immediately
-  if(slotEl){
-    slotEl.innerHTML=`<span class="seed-dot empty"></span><span class="slot-label"></span><span class="slot-flag-empty"></span><div class="slot-pending"><span class="slot-pending-dot"></span><span class="slot-pending-dot"></span><span class="slot-pending-dot"></span></div>`;
-  }
-
   if(seedId<=2){
-    // Suspense path: pulse already showing, then status bar drama, then reveal
     statusEl.className=`draw-status ${player.seedCls}`;
     statusFlag.classList.remove('show');
     ellWrap.style.display='none';
@@ -636,13 +630,12 @@ function receivePick(type, data){
       revealSlot(type,slotEl,player);
     }, SUSPENSE_ANNOUNCE+SUSPENSE_ELLIPSIS);
   } else {
-    // Normal path: pulse shows for ~1.5s then team reveals
     statusEl.className=`draw-status ${player.seedCls}`;
     ellWrap.style.display='none';
     statusFlag.src=furl(player.code);
     statusFlag.classList.add('show');
     statusText.textContent=`${player.seedLabel} — ${pname} draws ${teamDisplay}`;
-    setTimeout(()=>revealSlot(type,slotEl,player), 1500);
+    revealSlot(type,slotEl,player);
   }
 }
 
@@ -663,6 +656,8 @@ function finishDraw(type){
   const ellWrap=document.getElementById(`${type==='sw'?'sw':'gb'}EllipsisWrap`);
   const actionsId=type==='sw'?'swActionsRow':'gbActionsRow';
   const msg=type==='sw'?'🏆 SWEEPSTAKE DRAW COMPLETE':'🥅 GOLDEN BOOT DRAW COMPLETE';
+  // Wait long enough for the last suspense pick to fully resolve before firing
+  const wait = (type==='sw') ? SUSPENSE_ANNOUNCE+SUSPENSE_ELLIPSIS+1000 : SUSPENSE_ANNOUNCE+SUSPENSE_ELLIPSIS+1000;
   setTimeout(()=>{
     ellWrap.style.display='none';
     statusEl.className='draw-status s1';
@@ -670,7 +665,7 @@ function finishDraw(type){
     statusText.textContent=msg;
     document.getElementById(actionsId).style.display='flex';
     launchConfetti();
-  },SUSPENSE_ANNOUNCE+SUSPENSE_ELLIPSIS+600);
+  }, wait);
 }
 
 // ─── PERMANENT LINKS ──────────────────────────────────────────────────────────
