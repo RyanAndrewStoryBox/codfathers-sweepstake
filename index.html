@@ -5,7 +5,6 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Codfathers' World Cup Sweepstake 2026</title>
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
-
 <style>
   :root {
     --bg:#0a0e1a; --surface:#111827; --surface2:#1c2538; --border:#2a3550;
@@ -26,13 +25,27 @@
   .draw-time{color:var(--text);font-size:15px;font-weight:500;margin-bottom:8px}
   .draw-time strong{color:var(--gold)}
   .subtitle{color:var(--muted);font-size:14px;font-weight:300}
+  .participants-display{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:10px;margin-bottom:8px}
+  .participant-chip{background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:10px 14px;font-family:'Bebas Neue',sans-serif;font-size:16px;letter-spacing:1px;color:var(--text);display:flex;align-items:center;gap:8px}
+  .participant-chip-num{color:var(--muted);font-size:13px}
+  .prize-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:16px;margin-top:28px;max-width:480px;margin-left:auto;margin-right:auto}
+  @media(max-width:400px){.prize-grid{grid-template-columns:1fr}}
+  .prize-card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:18px;text-align:center;border-top:3px solid var(--gold)}
+  .prize-icon{font-size:28px;margin-bottom:6px}
+  .prize-label{font-family:'Bebas Neue',sans-serif;font-size:14px;letter-spacing:3px;color:var(--gold);margin-bottom:12px}
+  .prize-split{display:flex;flex-direction:column;gap:8px;margin-bottom:10px}
+  .prize-item{display:flex;justify-content:space-between;align-items:center;gap:8px}
+  .prize-pos{font-size:10px;letter-spacing:2px;color:var(--muted);font-weight:600}
+  .prize-amt{font-family:'Bebas Neue',sans-serif;font-size:28px;color:var(--text);letter-spacing:1px}
+  .prize-divider{height:1px;background:var(--border)}
+  .prize-note{font-size:10px;color:var(--muted);letter-spacing:0.3px}
   .divider{height:1px;background:linear-gradient(to right,transparent,var(--border),transparent);margin:36px 0}
   .section-label{font-family:'Bebas Neue',sans-serif;font-size:13px;letter-spacing:4px;color:var(--muted);margin-bottom:16px}
   .section-title{font-family:'Bebas Neue',sans-serif;font-size:36px;letter-spacing:2px;color:var(--gold);text-align:center;margin-bottom:8px}
   .section-sub{text-align:center;color:var(--muted);font-size:13px;margin-bottom:28px}
 
   /* Waiting */
-  #waitingScreen{text-align:center;padding:60px 20px}
+  #waitingScreen{padding:0} .ws-header{text-align:center;padding:40px 20px 30px} .ws-pulse{display:flex;justify-content:center;align-items:center;gap:4px;margin-top:20px} .waiting-title{font-family:'Bebas Neue',sans-serif;font-size:32px;letter-spacing:2px;color:var(--gold);margin-bottom:12px} .waiting-sub{color:var(--muted);font-size:15px}
   .waiting-title{font-family:'Bebas Neue',sans-serif;font-size:32px;letter-spacing:2px;color:var(--gold);margin-bottom:12px}
   .waiting-sub{color:var(--muted);font-size:15px;margin-bottom:32px}
   .pulse{display:inline-block;width:12px;height:12px;border-radius:50%;background:var(--gold);animation:pulse 1.4s ease-in-out infinite;margin:0 4px}
@@ -75,8 +88,8 @@
   .seed-desc{font-size:10px;color:var(--muted);margin-bottom:10px}
   .seed-teams{list-style:none;font-size:11.5px;color:var(--silver)}
   .seed-teams li{display:flex;align-items:center;gap:6px;padding:2px 0}
-  .gb-odds{margin-left:auto;font-size:10px;color:var(--muted);flex-shrink:0;padding-left:4px}
-  .gb-teams li{font-size:11px}
+  .gb-odds{margin-left:auto;font-size:10px;color:var(--muted);flex-shrink:0;padding-left:4px} .gb-country{display:flex;align-items:center;gap:5px;flex:1} .gb-country-name{color:var(--muted);font-size:10px}
+  .gb-teams li{font-size:11px;display:flex;align-items:center;gap:6px}
   .flag-sm{width:20px;height:13px;object-fit:cover;border-radius:2px;flex-shrink:0;border:1px solid rgba(255,255,255,0.1)}
 
   /* Buttons */
@@ -150,9 +163,39 @@
   <header>
     <div class="badge">FIFA ⚽ 2026</div>
     <h1>CODFATHERS'<br>WORLD CUP<br><span>SWEEPSTAKE</span></h1>
-    <p class="sponsor">Proudly sponsored by <strong>Hayes Kebab F.C.</strong></p>
+    <p class="sponsor">🍢 Proudly sponsored by <strong>Hayes Kebab F.C.</strong> &nbsp;·&nbsp; <strong>Treasurer: Frazer</strong></p>
     <p class="draw-time">⏰ Live draw begins <strong>8PM BST</strong> · Monday 8 June</p>
-    <p class="subtitle">8 players &nbsp;·&nbsp; 6 teams each &nbsp;·&nbsp; 6 seeded pots &nbsp;·&nbsp; 48 teams</p>
+    <p class="subtitle">8 players &nbsp;·&nbsp; 6 teams each &nbsp;·&nbsp; 6 Golden Boot contenders each &nbsp;·&nbsp; 48 teams</p>
+
+    <div class="prize-grid">
+      <div class="prize-card">
+        <div class="prize-icon">🏆</div>
+        <div class="prize-label">SWEEPSTAKE</div>
+        <div class="prize-split">
+          <div class="prize-item">
+            <span class="prize-pos">WINNER</span>
+            <span class="prize-amt">£105</span>
+          </div>
+          <div class="prize-divider"></div>
+          <div class="prize-item">
+            <span class="prize-pos">RUNNER-UP</span>
+            <span class="prize-amt">£15</span>
+          </div>
+        </div>
+        <div class="prize-note">£15 entry · £120 total pot</div>
+      </div>
+      <div class="prize-card">
+        <div class="prize-icon">🥅</div>
+        <div class="prize-label">GOLDEN BOOT</div>
+        <div class="prize-split">
+          <div class="prize-item">
+            <span class="prize-pos">WINNER</span>
+            <span class="prize-amt">£40</span>
+          </div>
+        </div>
+        <div class="prize-note">£5 entry · £40 total pot · winner takes all</div>
+      </div>
+    </div>
   </header>
 
   <!-- HOST PANEL -->
@@ -168,9 +211,39 @@
 
   <!-- WAITING SCREEN -->
   <div id="waitingScreen">
-    <div class="waiting-title">⚽ Waiting for the draw to begin...</div>
-    <p class="waiting-sub">The host will start the live draw at 8PM BST · Monday 8 June</p>
-    <div><span class="pulse"></span><span class="pulse"></span><span class="pulse"></span></div>
+
+    <!-- PARTICIPANTS - shown at top -->
+    <div class="section-label">PARTICIPANTS</div>
+    <div class="participants-display" id="participantsDisplay"></div>
+
+    <div class="divider"></div>
+
+    <!-- WAITING MESSAGE - centred -->
+    <div class="ws-header">
+      <div class="waiting-title">⚽ Waiting for the draw to begin...</div>
+      <p class="waiting-sub">The host will start the live draw at 8PM BST · Monday 8 June</p>
+      <div class="ws-pulse"><span class="pulse"></span><span class="pulse"></span><span class="pulse"></span></div>
+    </div>
+
+    <div class="divider"></div>
+
+    <!-- SWEEPSTAKE SEED POTS -->
+    <div class="section-title">⚽ SWEEPSTAKE</div>
+    <p class="section-sub">6 seeds · 8 teams each · 1 per player · worst drawn first</p>
+    <div class="methodology-note">
+      <strong>How the seeding works:</strong> All 48 teams ranked across 6 seeds of 8, based on historical World Cup pedigree, current FIFA ranking, and genuine tournament threat. Every player draws one team from each seed, starting from Seed 6 (rank outsiders) up to the Seed 1 elite reveal.
+    </div>
+    <div class="seeds-grid" id="seedsGridPublic"></div>
+
+    <div class="divider"></div>
+
+    <!-- GOLDEN BOOT PREVIEW -->
+    <div class="section-title">🥅 GOLDEN BOOT</div>
+    <p class="section-sub">6 tiers · 8 strikers each · 1 per player · worst drawn first</p>
+    <div class="methodology-note">
+      <strong>How this works:</strong> 48 Golden Boot contenders ranked by bookmaker odds across 6 tiers of 8. Every player draws one striker from each tier, starting from Tier 6 (rank outsiders) up to the Tier 1 favourites. Odds shown are from Sky Bet at time of draw.
+    </div>
+    <div class="seeds-grid" id="gbTiersGridPublic"></div>
   </div>
 
   <!-- SWEEPSTAKE SETUP (host only) -->
@@ -180,7 +253,7 @@
     <div class="divider"></div>
     <div class="section-label">SEED POTS</div>
     <div class="methodology-note">
-      <strong>How the seeding works:</strong> All 48 teams ranked across 6 seeds of 8, based on historical World Cup pedigree, current FIFA ranking, and genuine tournament threat. Every player draws one team from each seed, starting from Seed 6 (rank outsiders) up to the Seed 1 elite reveal.
+      <strong>How the seeding works:</strong> All 48 teams ranked across 6 seeds of 8, based on historical World Cup pedigree, current FIFA ranking, and genuine tournament threat. Every player draws one team from each seed, starting from Seed 6 (rank outsiders) up to the Seed 1 elite reveal. · <strong>Treasurer: Frazer</strong>
     </div>
     <div class="seeds-grid" id="seedsGrid"></div>
   </div>
@@ -246,13 +319,13 @@
   </div>
 
 </div>
-<script src="https://js.pusher.com/8.2.0/pusher.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/pusher-js@8.2.0/dist/web/pusher.min.js"></script>
 <script>
 const PUSHER_KEY = '996446c9642fa81fa0a2';
 const PUSHER_CLUSTER = 'eu';
 const FLAG = 'https://flagcdn.com/w40/';
 function furl(c){ return FLAG+c+'.png'; }
-function fimg(c,cls){ return `<img class="${cls}" src="${furl(c)}" alt="" loading="lazy" onerror="this.style.visibility='hidden'">`; }
+function fimg(c,cls){ return `<img class="${cls}" src="${furl(c)}" alt="" onerror="this.style.display='none'">`; }
 function esc(s){ return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
 
 // ─── TIMING ───────────────────────────────────────────────────────────────────
@@ -371,6 +444,8 @@ function shuffle(arr){
 // ─── PUSHER ───────────────────────────────────────────────────────────────────
 let pusher, channel;
 function initPusher(){
+  if(typeof Pusher === 'undefined'){ console.log('Pusher not available - running in preview mode'); return; }
+  try{
   pusher = new Pusher(PUSHER_KEY,{cluster:PUSHER_CLUSTER});
   channel = pusher.subscribe('sweepstake');
   channel.bind('sw-start',  d => showDrawArea('sw', d.players, d.playerOrder, d.timestamp));
@@ -379,6 +454,7 @@ function initPusher(){
   channel.bind('gb-start',  d => showDrawArea('gb', d.players, d.playerOrder, d.timestamp));
   channel.bind('gb-pick',   d => receivePick('gb', d));
   channel.bind('gb-done',   () => finishDraw('gb'));
+  } catch(e){ console.warn('Pusher init failed:',e); }
 }
 
 async function broadcast(action, data){
@@ -403,21 +479,33 @@ function buildParticipants(){
     grid.appendChild(w);
   }
 }
+function buildParticipantsDisplay(){
+  const el = document.getElementById('participantsDisplay');
+  if(!el) return;
+  el.innerHTML = DEFAULT_NAMES.map((name,i)=>
+    `<div class="participant-chip"><span class="participant-chip-num">${i+1}</span>${esc(name)}</div>`
+  ).join('');
+}
 function getNames(){ return Array.from({length:8},(_,i)=>{ const v=document.getElementById(`p${i+1}`).value.trim(); return v||`Player ${i+1}`; }); }
 
 function buildSeedsGrid(containerId, tiersData, showOdds){
   const grid=document.getElementById(containerId);
+  if(!grid){ console.warn('Grid not found:',containerId); return; }
   grid.innerHTML='';
   tiersData.forEach(tier=>{
     const card=document.createElement('div');
     card.className=`seed-card ${tier.cls}`;
-    const items = tier.teams || tier.players;
+    const items = (tier.teams || tier.players || []);
     const rows = items.map(t=>{
-      const code = t.code;
-      const label = t.name;
+      const code = t.code || '';
+      const playerName = t.name || '';
       const odds = t.odds ? `<span class="gb-odds">${t.odds}</span>` : '';
-      const country = t.country ? ` <span style="color:var(--muted);font-size:10px">(${t.country})</span>` : '';
-      return `<li>${fimg(code,'flag-sm')}<span>${label}${country}</span>${odds}</li>`;
+      // For golden boot: show "Name (Country)" with flag
+      // For teams: just show team name with flag
+      const countrySpan = t.country
+        ? `<span class="gb-country">${fimg(code,'flag-sm')}${playerName} <span class="gb-country-name">(${t.country})</span></span>`
+        : `${fimg(code,'flag-sm')}<span>${playerName}</span>`;
+      return `<li>${countrySpan}${odds}</li>`;
     }).join('');
     const listCls = showOdds ? 'seed-teams gb-teams' : 'seed-teams';
     card.innerHTML=`<div class="seed-title">${tier.label}</div><div class="seed-desc">${tier.desc}</div><ul class="${listCls}">${rows}</ul>`;
@@ -634,6 +722,9 @@ function launchConfetti(){
 window.addEventListener('DOMContentLoaded',function(){
   initPusher();
   buildSeedsGrid('seedsGrid', SEEDS, false);
+  buildSeedsGrid('seedsGridPublic', SEEDS, false);
+  buildSeedsGrid('gbTiersGridPublic', GB_TIERS, true);
+  buildParticipantsDisplay();
   buildSeedsGrid('gbTiersGrid', GB_TIERS, true);
 
   if(isHost){
