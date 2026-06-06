@@ -135,11 +135,6 @@
   .slot-flag-empty{width:26px;height:17px;background:var(--border);border-radius:2px;flex-shrink:0;opacity:0.3}
   .team-name{font-weight:500}
   .team-name.empty{color:var(--border)}
-  .slot-pending{display:flex;align-items:center;gap:3px}
-  .slot-pending-dot{width:5px;height:5px;border-radius:50%;background:var(--muted);display:inline-block;animation:slotPulse 1s ease-in-out infinite}
-  .slot-pending-dot:nth-child(2){animation-delay:0.2s}
-  .slot-pending-dot:nth-child(3){animation-delay:0.4s}
-  @keyframes slotPulse{0%,80%,100%{transform:scale(0.6);opacity:0.3}40%{transform:scale(1);opacity:1}}
   .gb-slot-meta{font-size:11px;color:var(--muted);font-weight:400}
 
   /* Actions */
@@ -589,9 +584,7 @@ function buildResultCards(type, players, playerOrder){
 async function drivePickSequence(type, players, playerOrder, startIdx){
   const total=48;
   if(startIdx>=total){
-    // Wait for last pick's full animation to complete before signalling done
-    // Last picks are seed 1 (suspense), so wait full suspense duration + buffer
-    setTimeout(async()=>{ await broadcast(`${type}-done`,{}); }, SUSPENSE_ANNOUNCE+SUSPENSE_ELLIPSIS+2000);
+    await broadcast(`${type}-done`,{});
     return;
   }
   const slot=Math.floor(startIdx/8);
@@ -623,46 +616,31 @@ function receivePick(type, data){
     statusFlag.classList.remove('show');
     ellWrap.style.display='none';
     statusText.textContent=`${player.seedLabel} — ${pname} draws...`;
-    // Show spinner in slot
-    if(slotEl){
-      slotEl.innerHTML=`<span class="seed-dot empty"></span><span class="slot-label"></span><span class="slot-flag-empty"></span><div class="slot-pending"><span class="slot-pending-dot"></span><span class="slot-pending-dot"></span><span class="slot-pending-dot"></span></div>`;
-    }
-    setTimeout(()=>{ ellWrap.style.display='flex'; }, SUSPENSE_ANNOUNCE);
+    setTimeout(()=>{ ellWrap.style.display='flex'; },SUSPENSE_ANNOUNCE);
     setTimeout(()=>{
       ellWrap.style.display='none';
       statusFlag.src=furl(player.code);
       statusFlag.classList.add('show');
       statusText.innerHTML=`<span class="team-slam">${player.name.toUpperCase()}!</span>`;
       revealSlot(type,slotEl,player);
-    }, SUSPENSE_ANNOUNCE+SUSPENSE_ELLIPSIS);
+    },SUSPENSE_ANNOUNCE+SUSPENSE_ELLIPSIS);
   } else {
     statusEl.className=`draw-status ${player.seedCls}`;
     ellWrap.style.display='none';
     statusFlag.src=furl(player.code);
     statusFlag.classList.add('show');
     statusText.textContent=`${player.seedLabel} — ${pname} draws ${teamDisplay}`;
-    // Show spinner in slot first, then reveal after 2s
-    if(slotEl){
-      slotEl.innerHTML=`<span class="seed-dot empty"></span><span class="slot-label"></span><span class="slot-flag-empty"></span><div class="slot-pending"><span class="slot-pending-dot"></span><span class="slot-pending-dot"></span><span class="slot-pending-dot"></span></div>`;
-    }
-    setTimeout(()=>revealSlot(type,slotEl,player), 3500);
+    revealSlot(type,slotEl,player);
   }
 }
 
 function revealSlot(type,slotEl,player){
   if(!slotEl)return;
   const extra = player.odds ? ` <span class="gb-slot-meta">(${player.country||''}) ${player.odds}</span>` : '';
-  // Set content first without animation class
   slotEl.innerHTML=`<span class="seed-dot ${player.seedCls}"></span><span class="slot-label">${player.seedLabel}</span>${fimg(player.code,'slot-flag')}<span class="team-name">${player.name}${extra}</span>`;
-  // Force a paint cycle so the browser registers the new content before animating
-  requestAnimationFrame(()=>{
-    requestAnimationFrame(()=>{
-      slotEl.classList.add('just-added');
-      setTimeout(()=>slotEl.classList.remove('just-added'),500);
-    });
-  });
+  slotEl.classList.add('just-added');
+  setTimeout(()=>slotEl.classList.remove('just-added'),450);
 }
-
 
 // ─── FINISH DRAW ──────────────────────────────────────────────────────────────
 function finishDraw(type){
@@ -672,7 +650,6 @@ function finishDraw(type){
   const ellWrap=document.getElementById(`${type==='sw'?'sw':'gb'}EllipsisWrap`);
   const actionsId=type==='sw'?'swActionsRow':'gbActionsRow';
   const msg=type==='sw'?'🏆 SWEEPSTAKE DRAW COMPLETE':'🥅 GOLDEN BOOT DRAW COMPLETE';
-  // Done signal already arrives after animations complete, just short pause
   setTimeout(()=>{
     ellWrap.style.display='none';
     statusEl.className='draw-status s1';
@@ -680,7 +657,7 @@ function finishDraw(type){
     statusText.textContent=msg;
     document.getElementById(actionsId).style.display='flex';
     launchConfetti();
-  }, 1000);
+  },SUSPENSE_ANNOUNCE+SUSPENSE_ELLIPSIS+600);
 }
 
 // ─── PERMANENT LINKS ──────────────────────────────────────────────────────────
