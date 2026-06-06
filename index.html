@@ -309,9 +309,9 @@ function furl(c){ return FLAG+c+'.png'; }
 function fimg(c,cls){ return `<img class="${cls}" src="${furl(c)}" alt="" onerror="this.style.display='none'">`; }
 function esc(s){ return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
 
-const NORMAL_DELAY      = 5000;
+const NORMAL_DELAY      = 3000;
 const SUSPENSE_ANNOUNCE = 4000;
-const SUSPENSE_ELLIPSIS = 9000;
+const SUSPENSE_ELLIPSIS = 7000;
 const SUSPENSE_REVEAL   = 800;
 
 // ── SEEDS DATA ────────────────────────────────────────────────────────────────
@@ -549,7 +549,12 @@ function buildResultCards(type,players,playerOrder){
 
 // ── HOST DRIVES ───────────────────────────────────────────────────────────────
 async function drivePickSequence(type,players,playerOrder,startIdx){
-  if(startIdx>=48){ await broadcast(`${type}-done`,{}); return; }
+  if(startIdx>=48){
+    // Last pick was seed 1 (suspense). Wait for its full animation then fire done.
+    const lastAnimDuration = SUSPENSE_ANNOUNCE + SUSPENSE_ELLIPSIS + 1000;
+    setTimeout(async()=>{ await broadcast(`${type}-done`,{}); }, lastAnimDuration);
+    return;
+  }
   const slot=Math.floor(startIdx/8);
   const pi=playerOrder[startIdx%8];
   const team=players[pi].slots[slot];
@@ -612,14 +617,13 @@ function finishDraw(type){
   const ellWrap=document.getElementById(`${pfx}EllipsisWrap`);
   const actionsId=type==='sw'?'swActionsRow':'gbActionsRow';
   const msg=type==='sw'?'🏆 SWEEPSTAKE DRAW COMPLETE':'🥅 GOLDEN BOOT DRAW COMPLETE';
-  setTimeout(()=>{
-    ellWrap.style.display='none';
-    statusEl.className='draw-status s1';
-    statusFlag.classList.remove('show');
-    statusText.textContent=msg;
-    document.getElementById(actionsId).style.display='flex';
-    launchConfetti();
-  },SUSPENSE_ANNOUNCE+SUSPENSE_ELLIPSIS+600);
+  // done signal arrives after last animation completes — fire confetti immediately
+  ellWrap.style.display='none';
+  statusEl.className='draw-status s1';
+  statusFlag.classList.remove('show');
+  statusText.textContent=msg;
+  document.getElementById(actionsId).style.display='flex';
+  launchConfetti();
 }
 
 // ── PERMANENT LINKS ───────────────────────────────────────────────────────────
