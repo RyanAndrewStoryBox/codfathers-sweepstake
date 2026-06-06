@@ -583,8 +583,6 @@ function buildResultCards(type, players, playerOrder){
     grid.appendChild(card);
   });
   playerOrder.forEach((pi,i)=>setTimeout(()=>document.getElementById(`${type}card-${pi}`).classList.add('visible'),60*i));
-  // Mark slot 0 for every player as pending immediately
-  setTimeout(()=>playerOrder.forEach(pi=>markNextSlotPending(type,pi,-1)),600);
 }
 
 // ─── HOST DRIVES PICKS ────────────────────────────────────────────────────────
@@ -630,7 +628,6 @@ function receivePick(type, data){
       statusFlag.classList.add('show');
       statusText.innerHTML=`<span class="team-slam">${player.name.toUpperCase()}!</span>`;
       revealSlot(type,slotEl,player);
-      setTimeout(()=>markNextSlotPending(type,pi,slot), 200);
     },SUSPENSE_ANNOUNCE+SUSPENSE_ELLIPSIS);
   } else {
     statusEl.className=`draw-status ${player.seedCls}`;
@@ -652,14 +649,18 @@ function revealSlot(type,slotEl,player){
   setTimeout(()=>slotEl.classList.remove('just-added'),450);
 }
 
-function markNextSlotPending(type, pi, slot){
-  const nextSlotEl = document.getElementById(`${type}slot-${pi}-${slot+1}`);
-  if(!nextSlotEl) return;
-  // Only pulse if slot is still empty (has .team-name.empty or slot-flag-empty)
-  const isEmpty = nextSlotEl.querySelector('.team-name.empty') || nextSlotEl.querySelector('.slot-flag-empty');
-  if(!isEmpty) return;
-  nextSlotEl.innerHTML=`<span class="seed-dot empty"></span><span class="slot-label"></span><span class="slot-flag-empty"></span><div class="slot-pending"><span class="slot-pending-dot"></span><span class="slot-pending-dot"></span><span class="slot-pending-dot"></span></div>`;
-  nextSlotEl.classList.add('slot-is-pending');
+function markSlotPending(type, pi, slot){
+  const slotEl = document.getElementById(`${type}slot-${pi}-${slot}`);
+  if(!slotEl) return;
+  slotEl.innerHTML=`<span class="seed-dot empty"></span><span class="slot-label"></span><span class="slot-flag-empty"></span><div class="slot-pending"><span class="slot-pending-dot"></span><span class="slot-pending-dot"></span><span class="slot-pending-dot"></span></div>`;
+}
+
+function clearAllPending(type){
+  document.querySelectorAll(`[id^="${type}slot-"]`).forEach(el=>{
+    if(el.querySelector('.slot-pending')){
+      el.innerHTML=`<span class="seed-dot empty"></span><span class="slot-label"></span><span class="slot-flag-empty"></span><span class="team-name empty">—</span>`;
+    }
+  });
 }
 
 // ─── FINISH DRAW ──────────────────────────────────────────────────────────────
