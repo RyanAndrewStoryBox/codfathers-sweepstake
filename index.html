@@ -135,6 +135,11 @@
   .slot-flag-empty{width:26px;height:17px;background:var(--border);border-radius:2px;flex-shrink:0;opacity:0.3}
   .team-name{font-weight:500}
   .team-name.empty{color:var(--border)}
+  .slot-pending{display:flex;align-items:center;gap:3px}
+  .slot-pending-dot{width:5px;height:5px;border-radius:50%;background:var(--muted);display:inline-block;animation:slotPulse 1s ease-in-out infinite}
+  .slot-pending-dot:nth-child(2){animation-delay:0.2s}
+  .slot-pending-dot:nth-child(3){animation-delay:0.4s}
+  @keyframes slotPulse{0%,80%,100%{transform:scale(0.6);opacity:0.3}40%{transform:scale(1);opacity:1}}
   .gb-slot-meta{font-size:11px;color:var(--muted);font-weight:400}
 
   /* Actions */
@@ -578,6 +583,8 @@ function buildResultCards(type, players, playerOrder){
     grid.appendChild(card);
   });
   playerOrder.forEach((pi,i)=>setTimeout(()=>document.getElementById(`${type}card-${pi}`).classList.add('visible'),60*i));
+  // Mark slot 0 for every player as pending immediately
+  setTimeout(()=>playerOrder.forEach(pi=>markNextSlotPending(type,pi,-1)),600);
 }
 
 // ─── HOST DRIVES PICKS ────────────────────────────────────────────────────────
@@ -623,6 +630,7 @@ function receivePick(type, data){
       statusFlag.classList.add('show');
       statusText.innerHTML=`<span class="team-slam">${player.name.toUpperCase()}!</span>`;
       revealSlot(type,slotEl,player);
+      setTimeout(()=>markNextSlotPending(type,pi,slot), 200);
     },SUSPENSE_ANNOUNCE+SUSPENSE_ELLIPSIS);
   } else {
     statusEl.className=`draw-status ${player.seedCls}`;
@@ -636,10 +644,22 @@ function receivePick(type, data){
 
 function revealSlot(type,slotEl,player){
   if(!slotEl)return;
+  // Clear any pending pulse on this slot
+  slotEl.classList.remove('slot-is-pending');
   const extra = player.odds ? ` <span class="gb-slot-meta">(${player.country||''}) ${player.odds}</span>` : '';
   slotEl.innerHTML=`<span class="seed-dot ${player.seedCls}"></span><span class="slot-label">${player.seedLabel}</span>${fimg(player.code,'slot-flag')}<span class="team-name">${player.name}${extra}</span>`;
   slotEl.classList.add('just-added');
   setTimeout(()=>slotEl.classList.remove('just-added'),450);
+}
+
+function markNextSlotPending(type, pi, slot){
+  const nextSlotEl = document.getElementById(`${type}slot-${pi}-${slot+1}`);
+  if(!nextSlotEl) return;
+  // Only pulse if slot is still empty (has .team-name.empty or slot-flag-empty)
+  const isEmpty = nextSlotEl.querySelector('.team-name.empty') || nextSlotEl.querySelector('.slot-flag-empty');
+  if(!isEmpty) return;
+  nextSlotEl.innerHTML=`<span class="seed-dot empty"></span><span class="slot-label"></span><span class="slot-flag-empty"></span><div class="slot-pending"><span class="slot-pending-dot"></span><span class="slot-pending-dot"></span><span class="slot-pending-dot"></span></div>`;
+  nextSlotEl.classList.add('slot-is-pending');
 }
 
 // ─── FINISH DRAW ──────────────────────────────────────────────────────────────
